@@ -1,0 +1,89 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+import matplotlib
+import warnings
+import itertools
+matplotlib.rcParams['axes.labelsize'] = 14
+matplotlib.rcParams['xtick.labelsize'] = 12
+matplotlib.rcParams['ytick.labelsize'] = 12
+matplotlib.rcParams['text.color'] = 'k'
+
+# Assigning the input files
+df_gender = pd.read_csv('Enter_korea_by_gender.csv')
+df_purpose = pd.read_csv('Enter_korea_by_purpose.csv')
+df_age = pd.read_csv('Enter_korea_by_age.csv')
+
+# Merging all the 3 files
+df = pd.merge(df_purpose, df_gender, on=['date', 'nation', 'visitor', 'growth', 'share'])
+df = pd.merge(df, df_age, on=['date', 'nation', 'visitor', 'growth', 'share'])
+# print(df.head())
+# print(df.info())
+
+# Write the Annual Dataset into csv file
+#df.to_csv('C:\Sujata\CompScience\IS 5800\ProjectAnnual_Prediction.csv', index=False)
+#df.to_csv('C:\Sujata\CompScience\IS 5800\ProjectAnnual_Prediction1.csv', index=False)
+
+# Adding a filter to the nation column to get the data for China
+nation_china = df.loc[df['nation'] == 'China']
+#print(nation_china.info())
+
+# Renaming the columns as they are disjointed
+nation_china = nation_china.rename(columns = {"age21-30":"age21_30", "age31-40":"age31_40", "age41-50":"age41_50",
+                                              "age51-60":"age51_60", "official affairs":"official_affairs"})
+
+# Data preprocess - dont need the column growth and share
+cols = ['growth', 'share']
+nation_china.drop(cols, axis=1, inplace=True)
+#print(nation_china.info())
+
+# Plotting date vs no. of visitors from china
+nation_china['date'] = pd.to_datetime(nation_china['date'])
+nation_china.plot(x = 'date', y = 'visitor', figsize=(15, 6), label = "China")
+#plt.show()
+
+# Plotting the no. of visitors according to age grp who r from china
+fig, ax=plt.subplots(figsize=(15,6))
+ax.plot(nation_china.date, nation_china.age21_30, marker="o", label="Age Grp 21 -30")
+ax.plot(nation_china.date, nation_china.age31_40, marker="o", label="Age Grp 31 -40")
+ax.plot(nation_china.date, nation_china.age41_50, marker="o", label="Age Grp 41 -50")
+ax.plot(nation_china.date, nation_china.age51_60, marker="o", label="Age Grp 51 -60")
+ax.plot(nation_china.date, nation_china.age61, marker="o", label="Age Grp 61 and above")
+ax.set_xlabel("Date")
+ax.set_ylabel("Visitors")
+ax.legend(loc=1)
+#plt.show()
+
+# Plotting no of visitors according to purpose from china
+fig, ax=plt.subplots(figsize=(15,6))
+ax.plot(nation_china.date, nation_china.tourism, marker="o", label="Tourism")
+ax.plot(nation_china.date, nation_china.business, marker="o", label="Business")
+ax.plot(nation_china.date, nation_china.official_affairs, marker="o", label="Official Affairs")
+ax.plot(nation_china.date, nation_china.studying, marker="o", label="Study")
+ax.plot(nation_china.date, nation_china.others, marker="o", label="Others")
+ax.set_xlabel("Date")
+ax.set_ylabel("Visitors")
+ax.legend(loc=1)
+#plt.show()
+
+# As the tourism and business have higher count the other 3 data are not clearly visible when they are removed
+fig, ax=plt.subplots(figsize=(15,6))
+ax.plot(nation_china.date, nation_china.official_affairs, marker="o", label="Official Affairs")
+ax.plot(nation_china.date, nation_china.studying, marker="o", label="Study")
+ax.plot(nation_china.date, nation_china.others, marker="o", label="Others")
+ax.set_xlabel("Date")
+ax.set_ylabel("Visitors")
+ax.legend(loc=1)
+#plt.show()
+
+# plotting according to gender
+fig, ax=plt.subplots(figsize=(15,6))
+ax.plot(nation_china.date, nation_china.male, marker="o", label="Male")
+ax.plot(nation_china.date, nation_china.female, marker="o", label="Female")
+ax.plot(nation_china.date, nation_china.crewman, marker="o", label="Crewman")
+ax.set_xlabel("Date")
+ax.set_ylabel("Visitors")
+ax.legend(loc=1)
+plt.show()
+
