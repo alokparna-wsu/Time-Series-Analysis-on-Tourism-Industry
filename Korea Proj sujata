@@ -1,0 +1,58 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+import matplotlib
+import warnings
+import itertools
+matplotlib.rcParams['axes.labelsize'] = 14
+matplotlib.rcParams['xtick.labelsize'] = 12
+matplotlib.rcParams['ytick.labelsize'] = 12
+matplotlib.rcParams['text.color'] = 'k'
+
+# Assigning the input files
+df_gender = pd.read_csv('Enter_korea_by_gender.csv')
+df_purpose = pd.read_csv('Enter_korea_by_purpose.csv')
+df_age = pd.read_csv('Enter_korea_by_age.csv')
+
+# Merging all the 3 files
+df = pd.merge(df_purpose, df_gender, on=['date', 'nation', 'visitor', 'growth', 'share'])
+df = pd.merge(df, df_age, on=['date', 'nation', 'visitor', 'growth', 'share'])
+# print(df.head())
+# print(df.info())
+
+# Write the Annual Dataset into csv file
+#df.to_csv('C:\Sujata\CompScience\IS 5800\ProjectAnnual_Prediction.csv', index=False)
+#df.to_csv('C:\Sujata\CompScience\IS 5800\ProjectAnnual_Prediction1.csv', index=False)
+
+# Adding a filter to the nation column to get the data for China
+nation_china = df.loc[df['nation'] == 'China']
+#print(nation_china.info())
+nation_china = nation_china.rename(columns = {"age21-30":"age21_30"})
+# Data preprocess - dont need the column growth and share
+cols = ['growth', 'share']
+nation_china.drop(cols, axis=1, inplace=True)
+nation_china = nation_china.sort_values('date')
+#print(nation_china.info())
+
+# Plotting date vs no. of visitors from china
+#cols = ['nation', 'tourism', 'business', 'official affairs', 'studying', 'others', 'male', 'female', 'crewman', 'age0-20',
+#     'age21-30', 'age31-40', 'age41-50', 'age51-60', 'age61']
+#nation_china.drop(cols, axis=1, inplace=True)
+#print(nation_china)
+#nation_china['date'] = pd.to_datetime(nation_china['date'])
+#nation_china.plot(x = 'date', y = 'visitor', figsize=(15, 6))
+#plt.show()
+
+# Plotting the no. of visitors who are male between the age 21 to 30 who visit korea from China
+# fig, ax = plt.subplots(1,2, figsize=(15,6))
+# df.plot(x="date", y=["male","age21-30"], ax=ax[0])
+# #df.plot(x="date", y=["Influenza[it]","Cefalea[it]" ], ax=ax[1])
+# plt.show()
+
+fig, ax=plt.subplots(figsize=(15,6))
+ax.plot(nation_china.date, nation_china.male, marker="o")
+#ax.set_xlabel("year")
+#ax.set_ylabel("lifeExp")
+ax.plot(nation_china.date, nation_china.age21_30, marker="o")
+plt.show()
